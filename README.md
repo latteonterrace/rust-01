@@ -10,6 +10,7 @@
     * [Shadowing](shadowing/README.md)
     * [함수](funcs/README.md)
     * [제어문](control/README.md)
+    * [소유권 이해하기](ownership/README.md)
 
 
 

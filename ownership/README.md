@@ -23,9 +23,10 @@
 * [변수와 데이터 상호작용 - move,clone](var-move/README.md) 
 * [변수와 데이터 상호작용 - copy](var-copy/README.md)
 * [소유권과 함수](owner-func/README.md)
-
-
-
+* [참조자와 빌림 (1)](ref-borrow/README.md)
+* [참조자와 빌림 (2)](ref-borrow2/README.md)
+* [Slice (1)](slice/README.md)
+* [Slice (2)](slice2/README.md)
 
 
 

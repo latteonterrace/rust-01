@@ -12,6 +12,8 @@
     * [제어문](control/README.md)
     * [소유권 이해하기](ownership/README.md)
     * [구조체](structs/README.md)
+    * [열거형](enums/README.md)
+
 
 
 

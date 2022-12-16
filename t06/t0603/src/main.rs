@@ -358,11 +358,230 @@ fn match_pointer_ref() {
             // add anything to it.
             *m += 10;
             println!("We added 10. `mut_value`: {:?}", m);
-        },
+        }
+    }
+}
+
+// 참조에 대한 이해
+fn get_ref() {
+    // https://blog.thoughtram.io/references-in-rust/
+
+    // 1. 불변 변수는 값의 재 할당이 불가능하다.
+    let i = 0;
+    println!("i = {}", i); // i = 0
+                           // 불변 참조 변수 i에 두 번 할당할 수 없다.
+                           // 오류 발생한다.
+                           // i = 2; // error: cannot assign twice to immutable variable `i`
+
+    // 2. 변수의 값을 재할당하려면 가변 변수를 사용해야 한다.
+    // 불변(immutable) 변수를 가변(mutable) 변수로 정의해야 수정할 수 있다.
+    let mut i = 0;
+    i = 2; // ok
+
+    // 3. 가변 참조 변수의 값을 변경하려면 *를 통해 역참조(dereference) 해야 한다.
+    // i는 변경할 수 있다
+    let mut i: i32 = 2; // i32 타입의 변수 i 를 선언하고 2로 초기화한다.
+                        // j는 i의 가변 참조, 다음과 같이 정의한다.
+    let j: &mut i32 = &mut i; // j 는 i 의 참조이다.
+                              // 가변 참조 변수의 값을 변경하려면 *를 통해 역참조해야 한다.(dereference)
+    *j = 3; // j 를 통해 i 의 값을 변경한다.
+            // i 값이 변경이 되었는지 확인한다.
+    println!("i = {}", i); // i = 3
+                           // 가변 참조에 빌려주고 나면 가변 변수 변경 불가하다
+                           // i가 가변 변수이기 때문에 변경이 가능할 것 같지만
+                           // j에 빌려주었기 때문에 변경이 불가하다
+                           // 아래는 오류가 발생한다고 하는데 정상적으로 아래 코드들이 실행 되었다.
+    i = 4;
+    println!("i = {}", i); // i = 4
+}
+
+fn is_ten(val: &i32) -> bool {
+    *val == 10
+}
+
+fn deref() {
+    let x = 10;
+    let r = &x;
+    let rr = &r; // `rr` is a `&&x`
+
+    if is_ten(rr) {
+        println!("Same!");
+    }
+}
+
+struct Foo(String);
+
+fn ref_test1() {
+    let foo = Foo(String::from("Hello, World"));
+    match foo {
+        Foo(a) => println!("{}", a),
+        _ => panic!("Unreachable pattern"),
+    }
+
+    //println!("{}", foo.0);
+}
+
+// 튜플을 분해하는 것은 간단하다. 튜플의 각 필드에 새 변수 이름을 할당하기만 하면 된다.
+fn destruction_tuple_struct_tuple() {
+    let (first, second) = (1, 2);
+    println!("first = {}, second = {}", first, second);
+    // first = 1, second = 2
+}
+
+fn destruction_tuple_struct() {
+    // 튜플 구조체를 분해하는 것은 튜플을 분해하는 것과 동일하지만 구조체 이름이 추가된다.
+    struct TupleStruct(&'static str, i32);
+    let my_tuple_struct = TupleStruct("foo", 123);
+    let TupleStruct(foo, num) = my_tuple_struct;
+    println!("foo = {}, num = {}", foo, num); // foo = foo, num = 123
+}
+
+// 구조체를 분해하는 것은 튜플 구조체를 분해하는 것과 비슷하다.
+fn destruction_struct() {
+    struct ArabianNights {
+        name: String,
+        stories: usize,
+    }
+    let teller = ArabianNights {
+        name: "Scheherazade".into(),
+        stories: 1001,
+    };
+    {
+        let ArabianNights { name, stories } = teller;
+        println!("{} told {} stories", name, stories);
+        // Scheherazade told 1001 stories
+    }
+}
+
+// .. 연산자는 구조 분해 시 일부 필드를 무시하는 데 사용할 수 있다
+fn destruction_struct_partial() {
+    struct ArabianNights {
+        name: String,
+        stories: usize,
+    }
+
+    let teller = ArabianNights {
+        name: "Scheherazade".into(),
+        stories: 1001,
+    };
+    let ArabianNights { name, .. } = teller;
+    println!("{} survived by her wits", name);
+}
+
+fn ref1() {
+    // i32 타입의 참조를 할당한다.
+    // `&`는 할당된 참조이다.
+    let reference = &4;
+
+    match reference {
+        // reference가  &val에 대한 매치된 패턴이라면, 아래와 같은 비교가 된다.
+        // `&i32`
+        // `&val`
+        //'&'이 제거되면 `i32`가 `val`에 할당되어야 한다.
+        &val => println!("Got a value via destructuring: {:?}", val),
+        // Got a value via destructuring: 4
+    }
+}
+
+fn ref2() {
+    // i32 타입의 참조를 할당한다.
+    // `&`는 할당된 참조이다.
+    let reference = &4;
+
+    // `&`를 피하기 위해서는 매치하기 전에 참조를 역참조해야 한다.
+    match *reference {
+        val => println!("Got a value via dereferencing: {:?}", val),
     }
 }
 
 
+fn ref3() {
+
+    // 참조로 시작하지 않는다면 어떻게 될까? `reference`는 `&`로 시작했다.
+    // 오른쪽이 이미 참조였기 때문이다.
+    // 이것은 오른쪽이 참조가 아니기 때문에 참조가 아니다.
+    let _not_a_reference = 3;
+
+    // 러스트는 정확히 이 목적을 위해 `ref`를 제공한다. 요소에 대한 참조가 생성되도록 할당을 수정한다.
+    // this reference is assigned.
+    // 이 참조는 할당된다.
+    let ref _is_a_reference = 3;
+        
+    // 따라서 참조없이 2 개의 값을 정의하여 
+    // `ref`와 `ref mut`을 통해 참조를 가져올 수 있다. 
+    let value = 5;
+    let mut mut_value = 6;
+
+    // Use `ref` keyword to create a reference.
+    // `ref` 키워드를 사용하여 참조를 만든다.
+    match value {
+        ref r => println!("Got a reference to a value: {:?}", r),
+    }
+    // `ref mut`을 비슷하게 사용한다.
+    match mut_value {
+        ref mut m => {
+            // Got a reference. Gotta dereference it before we can add anything to it.
+            // 참조를 얻었다. 무언가를 추가하기 전에 역참조해야 한다.
+            *m += 10;
+            println!("We added 10. `mut_value`: {:?}", m);
+        },
+    }
+}
+    
+
+fn match_des_structs() {
+    struct Foo {
+        x: (u32, u32),
+        y: u32,
+    }
+
+    // 구조체의 값을 변경하여 어떻게 되는지 확인해보자.
+    let foo = Foo { x: (1, 2), y: 3 };
+
+    match foo {
+        Foo { x: (1, b), y } => println!("First of x is 1, b = {},  y = {} ", b, y),
+        // 구조체를 분해하고 변수의 이름을 바꿀 수 있다.
+        // 순서는 중요하지 않다.
+        Foo { y: 2, x: i } => println!("y is 2, i = {:?}", i),
+
+        // 또한 일부 변수를 무시할 수도 있다.
+        Foo { y, .. } => println!("y = {}, we don't care about x", y),
+        // 이것은 오류를 발생시킨다: 패턴은 필드 `x`를 언급하지 않는다.
+        //Foo { y } => println!("y = {}", y),
+    }
+}
+
+
+
+// guards 
+fn guards1(){ 
+    enum Temperature {
+        Celsius(i32),
+        Fahrenheit(i32)
+    }
+
+    let temperature = Temperature::Celsius(35);
+    match temperature {
+        // if 조건이 부분이 guard이다.
+        Temperature::Celsius(t) if t > 30 => println!("{}C is above 30 Celsius", t),
+        Temperature::Celsius(t) => println!("{}C is below 30 Celsius", t),
+        Temperature::Fahrenheit(t) if t > 86 => println!("{}F is above 86 Fahrenheit", t),
+        Temperature::Fahrenheit(t) => println!("{}F is below 86 Fahrenheit", t),
+    }
+}
+
+
+fn guards2() {
+    let number: u8 = 4;
+
+    match number {
+        i if i == 0 => println!("Zero"),
+        i if i > 0 => println!("Greater than zero"),
+        // 아래 구문이 없으면 오류 발생 주석을 해제해야 함 
+        _ => unreachable!("Should never happen."),
+        
+    }
+}
 
 fn main() {
     // match_head();
@@ -370,5 +589,19 @@ fn main() {
     // match_tuple();
     // match_array_slices();
     // match_enum();
-    match_pointer_ref();
+    // match_pointer_ref();
+    // get_ref();
+    // deref();
+    // ref_test1();
+    // destructring1();
+    // destruction_tuple_struct();
+    // destruction_struct();
+    // destruction_struct_partial();
+
+    // ref1();
+    // ref2();
+    // match_des_structs();
+    // guards1();
+    guards2();
+    
 }
